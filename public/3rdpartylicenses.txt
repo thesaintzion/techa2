@@ -66,6 +66,14 @@ THE SOFTWARE.
 
 @angular/material/dialog
 
+@angular/material/form-field
+
+@angular/material/icon
+
+@angular/material/menu
+
+@angular/material/progress-spinner
+
 @angular/material/toolbar
 
 @angular/platform-browser
