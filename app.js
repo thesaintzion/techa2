@@ -1,22 +1,38 @@
 const express = require('express');
 const app = express();
-// const bodyParser = require('body-parser');
+const router = express.Router();
+const bodyParser = require('body-parser');
 const morgan = require('morgan');
-// require('dotenv').config();
-// const cors = require('cors');
-// const mysql = require('mysql');
-// const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
+const config = require('./config/db');
+const authentication = require('./routes/authentication')(router);
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+mongoose.connect(config.uri, function(err) {
+    if (err) {
+        console.log(`could not connect ${err}`);
+    } else {
+        console.log('MongoDb Is Connected');
+    }
+});
 
+// Middleware
 app.use(morgan('short'));
+app.use(bodyParser.json());
+app.use(cors());
 
+// routes
 const theView = path.join('./public');
-
 app.use(express.static(theView));
 app.get('*', function(req, res) {
     res.sendFile(path.join(__dirname + '/public/index.html'));
 });
+app.use('/authentication', authentication);
 
 
 const PORT = process.env.PORT || 4000;
