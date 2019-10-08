@@ -64,6 +64,8 @@ THE SOFTWARE.
 
 @angular/material/card
 
+@angular/material/core
+
 @angular/material/dialog
 
 @angular/material/expansion
@@ -72,9 +74,13 @@ THE SOFTWARE.
 
 @angular/material/icon
 
+@angular/material/list
+
 @angular/material/menu
 
 @angular/material/progress-spinner
+
+@angular/material/sidenav
 
 @angular/material/toolbar
 
