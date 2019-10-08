@@ -30,7 +30,7 @@ app.use(cors());
 const theView = path.join('./public');
 app.use(express.static(theView));
 app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname + '/public2/index.html'));
+    res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 app.use('/authentication', authentication);
 
