@@ -1,1 +1,0 @@
-heroku git:remote -a guarded-ocean-67450
