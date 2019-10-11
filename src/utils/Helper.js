@@ -8,7 +8,9 @@ const secret = process.env.SECRET;
  * @description An helper class containing utility methods
  * @exports Helper
  */
+
 export default class Helper {
+
     /**
      * @method generateToken
      * @description Generates token for securing endpoints
@@ -17,9 +19,10 @@ export default class Helper {
      * @returns {object} JSON response
      * @memberof Helper
      */
+
     static generateToken(payload) {
       const token = jwt.sign(payload, secret, {
-        expiresIn: '24hr',
+        expiresIn: '1hr',
       });
       return token;
     }
@@ -48,6 +51,20 @@ export default class Helper {
     static comparePassword(hashPassword, password) {
     return bcrypt.compareSync(password, hashPassword);
   }
+
+  /**
+   * @method verifyToken
+   * @description verify user's token for authorization
+   * @static
+   * @param { string } token - sting
+   * @returns {object} payload
+   * @memberof Helper
+  */
+
+ static verifyToken(token) {
+  const decoded = jwt.verify(token, secret);
+  return decoded;
+}
 
 }
 

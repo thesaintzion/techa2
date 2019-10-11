@@ -1,49 +1,35 @@
 import Joi from '@hapi/joi';
 
-class CheckValidInput {
-    /**
-     * funtion to check if user input valid details during registration
-     * @param {user} object
-     */
-    static createUser(user) {
-      const schema = Joi.object().keys({
-        email: Joi.string().trim().strict().email()
-          .required()
-          .error(() => 'Valid email field is required'),
-        first_name: Joi.string().trim().strict().regex(/^[a-zA-Z]+$/)
-          .min(3)
-          .required()
-          .error(() => 'First name field is required with min length of 3 and must be alphabet'),
-        last_name: Joi.string().trim().strict().regex(/^[a-zA-Z]+$/)
-          .min(3)
-          .required()
-          .error(() => 'last name field is required with min length of 3 and must be alphabet'),
-        password: Joi.string().trim().strict()
-          .min(6)
-          .required()
-          .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.{8,})/)
-          .label('password is required, must be at least 8 characters and must'
-          + ' contain at least a number, one lowercase and one uppercase alphabet')
-      });
-      
-      return Joi.validate(user, schema);
-    }
+const name = Joi.string().trim().required().regex(/^[A-Za-z]+$/)
+  .min(3);
 
-     /**  funtion to validate login inputs
-     * @param{details} string
-     */
-  static loginAuser(details) {
-    const schema = Joi.object().keys({
-      email: Joi.string().trim().strict().email()
-        .required()
-        .error(() => 'Email is required'),
-      password: Joi.string().trim().strict().required()
-        .error(() => 'you must provide a correct password'),
-    });
-    return Joi.validate(details, schema);
-  }
+const firstName = name
+  .label('firstname is required, must be alphabets only and have at least 3 characters');
 
+const lastName = name
+  .label('lastname is required, must be alphabets only and have at least 3 characters');
 
-}
+const email = Joi.string().trim().lowercase().email()
+  .required()
+  .label('email is required, and should follow this format: myemail@domain.com');
 
-export default CheckValidInput;
+const password = Joi.string().required().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.{8,})/)
+  .label('password is required, must be at least 8 characters and must'
+    + ' contain at least a number, one lowercase and one uppercase alphabet');
+
+const registerAs = Joi.string().required()
+    .label('Are you registering as a student or company?');
+
+export default {
+  signup: Joi.object().keys({
+    firstName,
+    lastName,
+    email,
+    password,
+    registerAs
+  }),
+  signin: Joi.object().keys({
+    email: Joi.string().required().label('Email is required'),
+    password: Joi.string().required().label('password is required')
+  })
+};

@@ -1,6 +1,7 @@
 import passport from'passport';
 import passportJWT from 'passport-jwt';
 import local from 'passport-local';
+import UserModel from '../models/user';
 
 const ExtractJWT = passportJWT.ExtractJwt;
 const LocalStrategy = local.Strategy;
@@ -10,13 +11,13 @@ passport.use(new LocalStrategy({
         usernameField: 'email',
         passwordField: 'password'
     },
-    function (email, password, cb) {
+    (email, password, cb) => {
 
         //Assume there is a DB module pproviding a global UserModel
         return UserModel.findOne({email, password})
             .then(user => {
                 if (!user) {
-                    return cb(null, false, {message: 'Incorrect email or password.'});
+                    return cb(null, false, { message: 'Incorrect email or password.' });
                 }
 
                 return cb(null, user, {
@@ -33,7 +34,7 @@ passport.use(new JWTStrategy({
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
         secretOrKey   : process.env.SECRET
     },
-    function (jwtPayload, cb) {
+    (jwtPayload, cb) => {
 
         //find the user in db if needed
         return UserModel.findOneById(jwtPayload.id)
