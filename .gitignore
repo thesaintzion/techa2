@@ -1,4 +1,16 @@
 
 # dependencies
 /node_modules
+/public2
+/routes
+/config
+/models
+/tacha2
+app.js
+note.txt
+package-lock.json
+package.json
+
+
+
 
