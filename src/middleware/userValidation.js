@@ -2,7 +2,7 @@ import Joi from '@hapi/joi';
 import _ from 'lodash';
 import User from '../models/user';
 import Schemas from '../utils/validations';
-import Helper from '../utils/Helper';
+import bcrypt from 'bcryptjs';
 
 /**
  * @function
@@ -90,8 +90,8 @@ const emailExists = (req, res, next) => {
             message: 'Your email does not exist.'
     });
     }
-      const correctPassword = Helper.comparePassword(password, response.password);
-      if (!correctPassword) {
+      bcrypt.compare(password, response.password, (err, isMatch) => {
+      if (!isMatch) {
         return res.status(401).json({ 
             status: 401, 
             message: 'Your password is incorrect.'
@@ -100,11 +100,19 @@ const emailExists = (req, res, next) => {
       if (response.isVerified === false) {
         return res.status(401).json({
             status: 401, 
-            message: 'Your email is not verified.'
+            message: 'Your email is not verified, kindly verify your email.'
         });
      }
+     if(err){
+       console.log(err);
+       return res.status(500).json({
+        status: 500, 
+        message: 'Database error'
+     });
+     }
       next();
-    });
+    })
+})
   };
   
   export default {

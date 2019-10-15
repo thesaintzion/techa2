@@ -1,6 +1,6 @@
 import Joi from '@hapi/joi';
 
-const name = Joi.string().trim().required().regex(/^[A-Za-z]+$/)
+const name = Joi.string().trim().regex(/^[A-Za-z]+$/)
   .min(3);
 
 const firstName = name
@@ -8,6 +8,9 @@ const firstName = name
 
 const lastName = name
   .label('lastname is required, must be alphabets only and have at least 3 characters');
+
+const companyName = name
+  .label('company name is required, must be alphabets only and have at least 3 characters');
 
 const email = Joi.string().trim().lowercase().email()
   .required()
@@ -17,7 +20,7 @@ const password = Joi.string().required().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(
   .label('password is required, must be at least 8 characters and must'
     + ' contain at least a number, one lowercase and one uppercase alphabet');
 
-const registerAs = Joi.string().required()
+const registerAs = Joi.string()
     .label('Are you registering as a student or company?');
 
 export default {
@@ -29,7 +32,7 @@ export default {
     registerAs
   }),
   signin: Joi.object().keys({
-    email: Joi.string().required().label('Email is required'),
-    password: Joi.string().required().label('password is required')
+    email,
+    password,
   })
 };
