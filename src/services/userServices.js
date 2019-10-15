@@ -54,5 +54,17 @@ export default class UserService {
     return user;
   }
 
+  /**
+   * @method findUser
+   * @description Medium between the database and UserController
+   * @static
+   * @param {object} id - data number
+   * @returns {object} JSON response
+   * @memberof UserService
+  */
+ static async findUser(_id) {
+  const user = await User.findOne({ _id });
+  return user;
+}
   
 }

@@ -1,6 +1,8 @@
 import UserService from '../services/userServices';
 import Helper from '../utils/Helper';
-import passport from 'passport';
+import sendEmail from '../utils/mailer';
+import transporter from '../utils/transporter'
+import User from '../models/user';
 
 
 /**
@@ -9,6 +11,23 @@ import passport from 'passport';
  * @exports UserController
  */
 export default class UserController {
+
+  /**
+   * @method
+   * @description compose email verification
+   * @static
+   * @param {string} email
+   * @param {string} host
+   * @param {string} token - application url
+   * @returns {object} object
+  */
+ static composeVerificationMail(email, host, token) {
+  return {
+    recipientEmail: `${email}`,
+    subject: 'Email verification',
+    body: `<a href='http://${host}/api/v1/users/verifyEmail/${token}'>click here to verify your email</a>`
+  };
+}
     /**
      * @method
      * @description Implements signup endpoint
@@ -20,7 +39,8 @@ export default class UserController {
      */
     static signup(req, res) {
       const user = req.body;
-      console.log("new user:", user);
+      const { host } = req.headers;
+      const msg = 'Kindly confirm the link sent to your email account to complete your registration';
       UserService.signup(user).then(response => {
         const result = {
           _id: response._id,
@@ -32,8 +52,11 @@ export default class UserController {
         };
         const { email, _id } = result;
         const token = Helper.generateToken({ _id, email });
+        const mailData = UserController.composeVerificationMail(email, host, token);
+        sendEmail(transporter(), mailData);
         return res.status(201).json({
           status: 201, 
+          message: msg,
           data: { token, ...result }
         });
       }).catch((error) => {
@@ -55,21 +78,9 @@ export default class UserController {
      * @memberof UserController
      */
     static signin(req, res) {
-      passport.authenticate('local', {session: false}, (err, user, info) => {
-        if (err || !user) {
-          return res.status(400).json({
-            message: info ? info.message : 'Login failed',
-            user   : user
-        });
-        }
-       req.login(user, {session: false}, (err) => {
-           if (err) {
-               res.send(err);
-           }
-
       const loginCredentials = req.body;
       UserService.signin(loginCredentials).then(response => {
-        const token = Helper.generateToken({ id: response._id, email: response.email });
+        const token = Helper.generateToken({ _id: response._id, email: response.email });
         return res.status(200).json({
           status: 200, 
           message:'Login successful.', 
@@ -81,8 +92,6 @@ export default class UserController {
           error:'database error'
         });
       });
-    });
-  })
 }
   
     /**
@@ -96,15 +105,21 @@ export default class UserController {
     */
     static async verifyUserEmail(req, res) {
       const { token } = req.params;
-      const { id, email } = Helper.verifyToken(token);
-      const user = await UserService.findUser(id);
+      const { _id, email } = Helper.verifyToken(token);
+      const user = await UserService.findUser(_id);
       if (email === user.email) {
-        UserService.updateUser(email);
+        user.isVerified = true;
+        user.save();
+        if(user.isVerified){
+        return res.status(200).json({
+          status: 200, 
+          message: 'Your account has been verified successfully'
+        });
       }
-      return res.status(200).json({
-        status: 200, 
-        message: 'Your account has been verified'
+      return res.status(500).json({
+        status: 500, 
+        message: 'Something went wrong'
       });
-    }
+     }
   }
-  
+}
