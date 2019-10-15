@@ -5,12 +5,10 @@
 /routes
 /config
 /models
-/tacha2
+/techa2
 app.js
 note.txt
 package-lock.json
 package.json
 
-
-
-
+.env
