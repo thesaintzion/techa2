@@ -1,6 +1,6 @@
 import Joi from '@hapi/joi';
 
-const name = Joi.string().trim().regex(/^[A-Za-z]+$/)
+const name = Joi.string().trim().required().regex(/^[A-Za-z]+$/)
   .min(3);
 
 const firstName = name
@@ -33,6 +33,11 @@ export default {
   }),
   signin: Joi.object().keys({
     email,
-    password,
-  })
+    password
+  }),
+  signupCompany: Joi.object().keys({
+    companyName,
+    email,
+    password
+  }),
 };

@@ -9,12 +9,26 @@ userRoute.post('/user/signup',
   userValidations.emailExists,
   UserController.signup);
 
+userRoute.post('/user/signupCompany',
+  userValidations.validateUser('signupCompany'),
+  userValidations.emailExists,
+  UserController.signupCompany);
+
 userRoute.post('/user/signin',
   userValidations.validateUser('signin'),
   userValidations.validateLogin,
   UserController.signin);
 
-  userRoute.get('/users/verifyEmail/:token',
+userRoute.post('/user/signinCompany',
+  userValidations.validateUser('signin'),
+  userValidations.validateCompanyLogin,
+  UserController.signinCompany);
+
+userRoute.get('/users/verifyEmail/:token',
     UserController.verifyUserEmail);
-  
+
+userRoute.get('/users/verifyCompany/:token',
+    UserController.verifyCompanyEmail);
+
+    
   export default userRoute;

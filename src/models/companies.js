@@ -1,30 +1,28 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const userSchema =  new mongoose.Schema({
-    firstName: { type: String, lowercase: true, required: true },
-    lastName: { type: String, lowercase: true, required: true },
+const companySchema =  new mongoose.Schema({
+    companyName: { type: String, lowercase: true, required: true, unique: true },
     email: { type: String, required: true, lowercase: true, unique: true },
     password: { type: String, required: true },
-    isStaff: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     role: { type: String, default: '' },
     createdAt: { type: Date, default: Date.now }
 });
 
-userSchema.pre('save', function (next) {
-    let user = this;
-    console.log(user);
+companySchema.pre('save', function (next) {
+    let company = this;
+    console.log(company);
     bcrypt.genSalt(10, (err, salt) => {
     if (err) console.error(err);
-    bcrypt.hash(user.password, salt, (err, hash) => {
-      user.password = hash
+    bcrypt.hash(company.password, salt, (err, hash) => {
+      company.password = hash;
       next();
     })
   });
   });
 
-const User = mongoose.model('User', userSchema);
+const Companies = mongoose.model('Companies', companySchema);
 
-export default User;
+export default Companies;
