@@ -24,6 +24,9 @@ mongoose.connect(uri)
     .then(() => console.log('Now connected to the DB!'))
     .catch(err => console.error('Something went wrong', err));
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+
 app.use(express.static(`${__dirname}/public`));
 
 app.get('/', (req, res) => res.status(200).json({

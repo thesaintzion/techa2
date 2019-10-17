@@ -111,15 +111,18 @@ export default class UserController {
       User.findOneAndUpdate(_id, { isVerified: true }, { new: true })
        .then(user => {
          if (email === user.email && user.isVerified) {
+           console.log(user);
           return res.status(200).json({
           status: 200, 
           message: 'Your account has been verified successfully'
           });
         }
+        }).catch(err => {
+          console.log(err);
         return res.status(500).json({
         status: 500, 
         message: 'Something went wrong'
         });
-      });
+      })
   }
 }
