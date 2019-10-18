@@ -40,4 +40,7 @@ export default {
     email,
     password
   }),
+  updatePassword: Joi.object().keys({
+    password
+  }),
 };

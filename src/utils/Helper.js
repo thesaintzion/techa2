@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import User from '../models/user';
 
 const secret = process.env.SECRET;
 
@@ -65,6 +66,43 @@ export default class Helper {
   const decoded = jwt.verify(token, secret);
   return decoded;
 }
+
+/**
+    * @method constructResetEmail
+    * @description construct a password rest email
+    * @static
+    * @param {object} req object,
+    * @param {string} email string,
+    * @returns {object} constructed object
+    * @memberof Helper
+    */
+   static constructResetEmail(req, email) {
+    const recipients = [email];
+    const issued = Date.now();
+    const expiryDate = parseInt(Date.now(), 10) + 3600000;
+    const payload = { email, issued, expiryDate };
+    const token = Helper.generateToken(payload);
+    const link = `http://${req.headers.host}/api/v1/users/reset/${token}`;
+    const text = `
+           <h2>Hi, there</h2>
+           <p>you can reset your password <a href='${link}'>here</a></p>
+    `;
+    return {
+      from: `Tech Academy <${process.env.EMAIL}>`,
+      to: [...recipients],
+      subject: 'Tech Academy Password Reset Link',
+      html: text
+    };
+  }
+
+  static async verifyExistingEmail(email) {
+    const check = await User.findOne({ email: email.trim().toLowerCase(), isVerified: true });
+    if (check) {
+      return true;
+    }
+    return false;
+  }
+
 
 }
 

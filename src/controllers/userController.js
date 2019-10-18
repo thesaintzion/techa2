@@ -1,9 +1,12 @@
 import UserService from '../services/userServices';
 import Helper from '../utils/Helper';
 import sendEmail from '../utils/mailer';
+import sendEmails from '../utils/email';
 import transporter from '../utils/transporter';
 import User from '../models/user';
 import Companies from '../models/companies';
+import bcrypt from 'bcryptjs';
+import { request } from 'http';
 
 
 /**
@@ -62,7 +65,7 @@ export default class UserController {
       const { host } = req.headers;
       const msg = 'Kindly confirm the link sent to your email account to complete your registration';
       UserService.signup(user).then(response => {
-        const result = {
+        let result = {
           _id: response._id,
           email: response.email,
           firstName: response.firstName,
@@ -71,9 +74,9 @@ export default class UserController {
           registerAs: response.registerAs,
           createdAt: response.createdAt
         };
-        const { email, _id, createdAt } = result;
-        const token = Helper.generateToken({ _id, email, createdAt });
-        const mailData = UserController.composeVerificationMail(email, host, token);
+        let { email, _id, createdAt } = result;
+        let token = Helper.generateToken({ _id, email, createdAt });
+        let mailData = UserController.composeVerificationMail(email, host, token);
         sendEmail(transporter(), mailData);
         return res.status(201).json({
           status: 201, 
@@ -241,4 +244,177 @@ export default class UserController {
       });
     })
 }
+
+/**
+   * @method
+   * @description Implements password reset endpoint
+   * @static
+   * @param {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} JSON response
+   * @memberof UserController
+   */
+  static resetPassword(req, res) {
+    const { email } = req.body;
+    const emailOptions = Helper.constructResetEmail(req, email);
+    User.findOne({ email: req.body.email.trim().toLowerCase() }).then(response => {
+    console.log(response);
+    if (response) {
+      sendEmails(transporter(), emailOptions);
+      return res.status(200).json({
+        status: 200,
+        message: 'a password reset link has been sent to your email'
+      });
+    }
+    return res.status(400).json({
+        status: 400,
+        message: 'User not found'
+      });
+  }).catch(error =>{
+    console.log(error)
+    return res.status(500).json({
+      status: 500,
+      message: 'Database error'
+    });
+  })
+}
+
+
+/**
+   * @method
+   * @description Implements update password controller
+   * @static
+   * @param {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} JSON response
+   * @memberof UserController
+   */
+  static updatePassword(req, res) {
+    const { token } = req.params;
+    const data = Helper.verifyToken(token);
+    const hasExpired = data.expiryDate < Date.now();
+    if (hasExpired) {
+      return res.status(400).json({
+        status: 400,
+        message: 'this address link has expired'
+      });
+    }
+    if (req.method === 'GET') {
+      return res.status(200).json({
+        status: 200,
+        message: 'enter your new password'
+      });
+    }
+    const { password } = req.body;
+    User.findOne({email: data.email},(err,response)=> {
+        response.password = password;
+        response.save((err,data)=> {
+        if(err) {
+          res.status(500).json({
+            status: 500,
+            message: err
+          })
+        }
+        else{
+          console.log(data);
+        res.status(201).json({
+          status: 201,
+          message: 'successfully updated your password',
+          data: {
+            id: data.id,
+            password: data.password
+          }
+        })
+        }
+      });
+    });
+
+  } 
+
+  /**
+   * @method
+   * @description Implements password reset endpoint for companies
+   * @static
+   * @param {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} JSON response
+   * @memberof UserController
+   */
+  static resetCompanyPassword(req, res) {
+    const { email } = req.body;
+    const emailOptions = Helper.constructResetEmail(req, email);
+    Companies.findOne({ email: req.body.email.trim().toLowerCase() }).then(response => {
+    console.log(response);
+    if (response) {
+      sendEmails(transporter(), emailOptions);
+      return res.status(200).json({
+        status: 200,
+        message: 'a password reset link has been sent to your email'
+      });
+    }
+    return res.status(400).json({
+        status: 400,
+        message: 'User not found'
+      });
+  }).catch(error =>{
+    console.log(error)
+    return res.status(500).json({
+      status: 500,
+      message: 'Database error'
+    });
+  })
+}
+
+
+/**
+   * @method
+   * @description Implements update password controller
+   * @static
+   * @param {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} JSON response
+   * @memberof UserController
+   */
+  static updateCompanyPassword(req, res) {
+    const { token } = req.params;
+    const data = Helper.verifyToken(token);
+    const hasExpired = data.expiryDate < Date.now();
+    if (hasExpired) {
+      return res.status(400).json({
+        status: 400,
+        message: 'this address link has expired'
+      });
+    }
+    if (req.method === 'GET') {
+      return res.status(200).json({
+        status: 200,
+        message: 'enter your new password'
+      });
+    }
+    const { password } = req.body;
+    Companies.findOne({email: data.email},(err,response)=> {
+        response.password = password;
+        response.save((err,data)=> {
+        if(err) {
+          res.status(500).json({
+            status: 500,
+            message: err
+          })
+        }
+        else{
+          console.log(data);
+        res.status(201).json({
+          status: 201,
+          message: 'successfully updated your password',
+          data: {
+            id: data.id,
+            password: data.password
+          }
+        })
+        }
+      });
+    });
+
+  } 
+
 }
