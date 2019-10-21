@@ -1,5 +1,6 @@
 import User from '../models/user';
 import Companies from '../models/companies';
+import Helper from '../utils/Helper'
 
 
 /**
@@ -24,11 +25,11 @@ export default class UserService {
     lastName = lastName.trim();
     email = email.trim().toLowerCase();
     password = password;
-    const user = {
+    let user = {
       firstName, lastName, email, password
     };
 
-    const newUser = new User(user);
+    let newUser = new User(user);
     console.log(newUser);
     return await newUser.save();
   }

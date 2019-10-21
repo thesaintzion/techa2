@@ -13,6 +13,7 @@ const companySchema =  new mongoose.Schema({
 
 companySchema.pre('save', function (next) {
     let company = this;
+    if(!company.isModified('password')) return next();
     console.log(company);
     bcrypt.genSalt(10, (err, salt) => {
     if (err) console.error(err);

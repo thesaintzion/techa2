@@ -30,5 +30,24 @@ userRoute.get('/users/verifyEmail/:token',
 userRoute.get('/users/verifyCompany/:token',
     UserController.verifyCompanyEmail);
 
+userRoute
+    .post('/users/reset', UserController.resetPassword)
+    .get('/users/reset/:token', UserController.updatePassword)
+    .patch(
+      '/users/reset/:token',
+      userValidations.validateUser('updatePassword'),
+      UserController.updatePassword
+    );
+
+userRoute
+    .post('/users/resetCompany', UserController.resetPassword)
+    .get('/users/resetCompany/:token', UserController.updatePassword)
+    .patch(
+      '/users/resetCompany/:token',
+      userValidations.validateUser('updatePassword'),
+      UserController.updatePassword
+    );
+  
+
     
   export default userRoute;

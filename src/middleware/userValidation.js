@@ -161,11 +161,23 @@ const emailExists = (req, res, next) => {
 }
 
 
+/**
+   * @method resetPassword
+   * @description Signs in user with valid credentials
+   * @param {string} password
+   * @param {string} email
+   * @returns {object} JSON response
+   * @memberof UserService
+   */
+  const resetPassword = (password, email) => {
+    const newPassword = Helper.hashPassword(password);
+    return User.findOneAndUpdate(email, { password: newPassword }, { new: true });
+  }
 
 
  
 
   export default {
-    validateEmail, validateLogin, validateUser, emailExists, validateCompanyLogin
+    validateEmail, validateLogin, validateUser, emailExists, validateCompanyLogin, resetPassword
   };
   
